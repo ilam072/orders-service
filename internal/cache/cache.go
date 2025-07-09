@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/maypok86/otter/v2"
 	"wb-l0/internal/types/dto"
-	"wb-l0/pkg/e"
 )
 
 var (
@@ -31,13 +30,10 @@ func (c *OrderCache) Set(key string, order dto.Order) {
 	c.store.Set(key, order)
 }
 
-func (c *OrderCache) Get(key string) (dto.Order, error) {
+func (c *OrderCache) Get(key string) (dto.Order, bool) {
 	const op = "cache.Get()"
 
 	order, ok := c.store.GetIfPresent(key)
-	if !ok {
-		return dto.Order{}, e.Wrap(op, ErrOrderNotFound)
-	}
 
-	return order, nil
+	return order, ok
 }

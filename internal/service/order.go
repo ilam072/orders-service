@@ -19,13 +19,13 @@ type OrderCache interface {
 	Get(key string) (dto.Order, error)
 }
 
-type service struct {
+type OrderService struct {
 	orderRepo OrderRepo
 	cache     OrderCache
 }
 
-func (s service) CreateOrder(ctx context.Context, order dto.Order) error {
-	const op = "service.CreateOrder()"
+func (s OrderService) CreateOrder(ctx context.Context, order dto.Order) error {
+	const op = "OrderService.CreateOrder()"
 
 	domainOrder, delivery, payment, items, err := dtoToDomainOrder(order)
 	if err != nil {
