@@ -58,7 +58,7 @@ type Item struct {
 	OrderID     uuid.UUID `db:"order_id"`
 	TrackNumber string    `db:"track_number"`
 	Price       int       `db:"price"`
-	RID         string    `db:"rid"`
+	Rid         string    `db:"rid"`
 	Name        string    `db:"name"`
 	Sale        int       `db:"sale"`
 	Size        string    `db:"size"`

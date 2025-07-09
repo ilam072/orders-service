@@ -10,11 +10,11 @@ import (
 func OpenDB(ctx context.Context, cfg config.DBConfig) (*pgxpool.Pool, error) {
 	connString := fmt.Sprintf(
 		"postgres://%s:%s@%s:%d/%s",
-		cfg.PgUser,     // Пользователь
-		cfg.PgPassword, // Пароль
-		cfg.PgHost,     // Хост
-		cfg.PgPort,     // Порт
-		cfg.PgDatabase, // База данных
+		cfg.PgUser,
+		cfg.PgPassword,
+		cfg.PgHost,
+		cfg.PgPort,
+		cfg.PgDatabase,
 	)
 
 	poolConfig, err := pgxpool.ParseConfig(connString)

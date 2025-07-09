@@ -35,16 +35,16 @@ func (s *ServerConfig) Address() string {
 	return fmt.Sprintf("localhost:%s", s.HTTPPort)
 }
 
-func NewConfig() (*Config, error) {
+func New() *Config {
 	cfg := &Config{}
 
 	if err := godotenv.Load(".env"); err != nil {
-		return nil, fmt.Errorf("failed to load .env file: %w", err)
+		panic(err)
 	}
 
 	if err := env.Parse(cfg); err != nil {
-		return nil, fmt.Errorf("failed to parse config from enviroment variables: %w", err)
+		panic(err)
 	}
 
-	return cfg, nil
+	return cfg
 }

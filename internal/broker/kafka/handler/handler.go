@@ -20,9 +20,21 @@ type Service interface {
 }
 
 type OrderConsumerHandler struct {
-	c       Consumer
-	log     *slog.Logger
-	service Service
+	log      *slog.Logger
+	consumer Consumer
+	service  Service
+}
+
+func NewOrderConsumerHandler(
+	log *slog.Logger,
+	c Consumer,
+	s Service,
+) *OrderConsumerHandler {
+	return &OrderConsumerHandler{
+		log:      log,
+		consumer: c,
+		service:  s,
+	}
 }
 
 func (h *OrderConsumerHandler) Start(ctx context.Context) error {
@@ -38,7 +50,7 @@ func (h *OrderConsumerHandler) Start(ctx context.Context) error {
 			log.Info("kafka consumer shutting down...")
 			return nil
 		default:
-			message, err := h.c.Consume(ctx)
+			message, err := h.consumer.Consume(ctx)
 			if err != nil {
 				log.Error("failed to read message", sl.Err(err))
 				return e.Wrap(op, err)
