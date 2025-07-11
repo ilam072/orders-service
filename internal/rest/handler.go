@@ -11,25 +11,19 @@ type OrderService interface {
 	GetOrder(ctx context.Context, orderId string) (dto.Order, error)
 }
 
-type OrderCache interface {
-	Get(key string) (dto.Order, bool)
-}
-
 type Handler struct {
-	log   *slog.Logger
-	api   *fiber.App
-	s     OrderService
-	cache OrderCache
+	log *slog.Logger
+	api *fiber.App
+	s   OrderService
 }
 
-func NewHandler(log *slog.Logger, s OrderService, c OrderCache) *Handler {
+func NewHandler(log *slog.Logger, s OrderService) *Handler {
 	api := fiber.New()
 
 	h := &Handler{
-		log:   log,
-		api:   api,
-		s:     s,
-		cache: c,
+		log: log,
+		api: api,
+		s:   s,
 	}
 	h.api.Get("/api/order/:id", h.GetOrderHandler)
 

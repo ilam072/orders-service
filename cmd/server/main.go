@@ -6,6 +6,9 @@ import (
 	"os"
 	"wb-l0/internal/cache"
 	"wb-l0/internal/config"
+	"wb-l0/internal/repo/postgres"
+	"wb-l0/internal/rest"
+	"wb-l0/internal/service"
 	"wb-l0/pkg/db"
 	"wb-l0/pkg/logger/handlers/slogpretty"
 )
@@ -13,18 +16,19 @@ import (
 func main() {
 	cfg := config.New()
 
-	log := initLogger()
-
-	db, err := db.OpenDB(context.Background(), cfg.DBConfig)
+	pool, err := db.OpenDB(context.Background(), cfg.DBConfig)
 	if err != nil {
 		panic(err)
 	}
 
-	cache := cache.New()
+	orderRepo := postgres.NewOrderRepo(pool)
+	orderService := service.NewOrderService(orderRepo, cache.New())
 
-	// repo
+	log := initLogger()
 
-	// service
+	rest.NewHandler(log, orderService, cache.New())
+
+	// handler (http, kafka)
 
 	// order consumer
 }

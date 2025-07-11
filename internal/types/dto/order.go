@@ -62,7 +62,7 @@ type Order struct {
 	Entry             string    `json:"entry"`
 	Delivery          Delivery  `json:"delivery"`
 	Payment           Payment   `json:"payment"`
-	Items             []Items   `json:"items"`
+	Items             []Item    `json:"items"`
 	Locale            string    `json:"locale"`
 	InternalSignature string    `json:"internal_signature"`
 	CustomerID        string    `json:"customer_id"`
@@ -89,14 +89,14 @@ type Payment struct {
 	Currency     string `json:"currency"`
 	Provider     string `json:"provider"`
 	Amount       int    `json:"amount"`
-	PaymentDt    int    `json:"payment_dt"`
+	PaymentDt    int64  `json:"payment_dt"`
 	Bank         string `json:"bank"`
 	DeliveryCost int    `json:"delivery_cost"`
 	GoodsTotal   int    `json:"goods_total"`
 	CustomFee    int    `json:"custom_fee"`
 }
 
-type Items struct {
+type Item struct {
 	ChrtID      int    `json:"chrt_id"`
 	TrackNumber string `json:"track_number"`
 	Price       int    `json:"price"`

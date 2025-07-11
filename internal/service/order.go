@@ -16,12 +16,35 @@ type OrderRepo interface {
 
 type OrderCache interface {
 	Set(key string, order dto.Order)
-	Get(key string) (dto.Order, error)
+	Get(key string) (dto.Order, bool)
 }
 
 type OrderService struct {
 	orderRepo OrderRepo
 	cache     OrderCache
+}
+
+func NewOrderService(repo OrderRepo, cache OrderCache) *OrderService {
+	return &OrderService{
+		orderRepo: repo,
+		cache:     cache,
+	}
+}
+
+func (s OrderService) GetOrder(ctx context.Context, orderId string) (dto.Order, error) {
+	const op = "OrderService.GetOrder()"
+
+	order, ok := s.cache.Get(orderId)
+	if ok {
+		return order, nil
+	}
+
+	fullOrder, err := s.orderRepo.GetOrder(ctx, orderId)
+	if err != nil {
+		return dto.Order{}, e.Wrap(op, err)
+	}
+
+	return domainToDtoOrder(fullOrder), nil
 }
 
 func (s OrderService) CreateOrder(ctx context.Context, order dto.Order) error {
@@ -78,7 +101,7 @@ func dtoToDomainOrder(dto dto.Order) (domain.Order, domain.Delivery, domain.Paym
 		Currency:     dto.Payment.Currency,
 		Provider:     dto.Payment.Provider,
 		Amount:       dto.Payment.Amount,
-		PaymentDt:    time.Unix(int64(dto.Payment.PaymentDt), 0),
+		PaymentDt:    time.Unix(dto.Payment.PaymentDt, 0),
 		Bank:         dto.Payment.Bank,
 		DeliveryCost: dto.Payment.DeliveryCost,
 		GoodsTotal:   dto.Payment.GoodsTotal,
@@ -104,4 +127,66 @@ func dtoToDomainOrder(dto dto.Order) (domain.Order, domain.Delivery, domain.Paym
 	}
 
 	return order, delivery, payment, items, nil
+}
+
+func domainToDtoOrder(fullOrder domain.FullOrder) dto.Order {
+
+	delivery := dto.Delivery{
+		Name:    fullOrder.Delivery.Name,
+		Phone:   fullOrder.Delivery.Phone,
+		Zip:     fullOrder.Delivery.Zip,
+		City:    fullOrder.Delivery.City,
+		Address: fullOrder.Delivery.Address,
+		Region:  fullOrder.Delivery.Region,
+		Email:   fullOrder.Delivery.Email,
+	}
+
+	payment := dto.Payment{
+		Transaction:  fullOrder.Payment.Transaction.String(),
+		RequestID:    fullOrder.Payment.RequestID,
+		Currency:     fullOrder.Payment.Currency,
+		Provider:     fullOrder.Payment.Provider,
+		Amount:       fullOrder.Payment.Amount,
+		PaymentDt:    fullOrder.Payment.PaymentDt.Unix(),
+		Bank:         fullOrder.Payment.Bank,
+		DeliveryCost: fullOrder.Payment.DeliveryCost,
+		GoodsTotal:   fullOrder.Payment.GoodsTotal,
+		CustomFee:    fullOrder.Payment.CustomFee,
+	}
+
+	var items []dto.Item
+	for _, itm := range fullOrder.Items {
+		item := dto.Item{
+			ChrtID:      int(itm.ChrtID),
+			TrackNumber: itm.TrackNumber,
+			Price:       itm.Price,
+			Rid:         itm.Rid,
+			Name:        itm.Name,
+			Sale:        itm.Sale,
+			Size:        itm.Size,
+			TotalPrice:  itm.TotalPrice,
+			NmID:        int(itm.NmID),
+			Brand:       itm.Brand,
+			Status:      itm.Status,
+		}
+		items = append(items, item)
+	}
+
+	return dto.Order{
+		OrderUID:          fullOrder.Order.ID.String(),
+		TrackNumber:       fullOrder.Order.TrackNumber,
+		Entry:             fullOrder.Order.Entry,
+		Delivery:          delivery,
+		Payment:           payment,
+		Items:             items,
+		Locale:            fullOrder.Order.Locale,
+		InternalSignature: fullOrder.Order.InternalSignature,
+		CustomerID:        fullOrder.Order.CustomerID,
+		DeliveryService:   fullOrder.Order.DeliveryService,
+		Shardkey:          fullOrder.Order.ShardKey,
+		SmID:              fullOrder.Order.SmID,
+		DateCreated:       fullOrder.Order.DateCreated,
+		OofShard:          fullOrder.Order.OofShard,
+	}
+
 }

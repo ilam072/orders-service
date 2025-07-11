@@ -12,6 +12,10 @@ type OrderRepo struct {
 	pool *pgxpool.Pool
 }
 
+func NewOrderRepo(db *pgxpool.Pool) *OrderRepo {
+	return &OrderRepo{pool: db}
+}
+
 func (r *OrderRepo) CreateOrder(
 	ctx context.Context,
 	order domain.Order,

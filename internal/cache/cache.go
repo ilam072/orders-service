@@ -1,13 +1,8 @@
 package cache
 
 import (
-	"errors"
 	"github.com/maypok86/otter/v2"
 	"wb-l0/internal/types/dto"
-)
-
-var (
-	ErrOrderNotFound = errors.New("order not found")
 )
 
 type OrderCache struct {
@@ -17,6 +12,7 @@ type OrderCache struct {
 func New() *OrderCache {
 	opts := &otter.Options[string, dto.Order]{
 		MaximumSize: 1000,
+
 		//	InitialCapacity:  0,
 		//	Logger:           nil,
 	}
@@ -31,8 +27,6 @@ func (c *OrderCache) Set(key string, order dto.Order) {
 }
 
 func (c *OrderCache) Get(key string) (dto.Order, bool) {
-	const op = "cache.Get()"
-
 	order, ok := c.store.GetIfPresent(key)
 
 	return order, ok
