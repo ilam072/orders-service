@@ -33,3 +33,7 @@ func NewHandler(log *slog.Logger, s OrderService) *Handler {
 func (h *Handler) Listen(addr string) error {
 	return h.api.Listen(addr)
 }
+
+func (h *Handler) Shutdown() error {
+	return h.api.Shutdown()
+}
